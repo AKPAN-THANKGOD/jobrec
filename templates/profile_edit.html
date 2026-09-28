@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Edit profile — SkillMatch</title>
+<style>
+  :root{
+    --teal:#0f766e;--teal-dark:#0b5e57;--teal-light:#ccfbf1;
+    --ink:#1f2937;--sub:#6b7280;--line:#e5e7eb;--bg:#fff;--panel:#f9fafb;
+    --err:#dc2626;--err-bg:#fef2f2;--err-line:#fecaca;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--teal:#2dd4bf;--teal-dark:#5eead4;--teal-light:#0f2e2b;
+          --ink:#ececee;--sub:#9aa0aa;--line:#2c2f35;--bg:#141517;--panel:#1e2024;
+          --err:#fca5a5;--err-bg:#3b1212;--err-line:#7f1d1d;}
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;}
+
+  header{display:flex;align-items:center;justify-content:space-between;
+         padding:14px 28px;border-bottom:1px solid var(--line);position:sticky;top:0;
+         background:var(--bg);z-index:10;flex-wrap:wrap;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;
+         text-decoration:none;color:var(--ink);}
+  .logo{width:32px;height:32px;border-radius:8px;background:var(--teal);color:#fff;
+        display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+  .logout{border:1px solid var(--line);background:transparent;color:var(--ink);
+          padding:7px 14px;border-radius:8px;font-size:14px;cursor:pointer;text-decoration:none;}
+  .logout:hover{border-color:var(--teal);color:var(--teal);}
+
+  main{max-width:680px;margin:0 auto;padding:36px 24px 60px;}
+  h1{font-size:26px;margin:0 0 6px;}
+  .page-lede{color:var(--sub);font-size:14.5px;margin:0 0 28px;}
+
+  .card{border:1px solid var(--line);border-radius:14px;padding:26px;margin-bottom:24px;background:var(--bg);}
+  .card h2{font-size:16px;margin:0 0 4px;}
+  .card .hint{color:var(--sub);font-size:13.5px;margin:0 0 20px;}
+
+  label{display:block;font-size:13.5px;font-weight:600;margin-bottom:6px;}
+  .field{margin-bottom:18px;}
+  input,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:11px 12px;
+                 font-size:14px;outline:none;background:var(--bg);color:var(--ink);font-family:inherit;}
+  textarea{resize:vertical;min-height:90px;}
+  input:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,118,110,.15);}
+  .helper{font-size:12.5px;color:var(--sub);margin-top:6px;}
+  .optional{color:var(--sub);font-weight:400;}
+
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:500px){.row2{grid-template-columns:1fr;}}
+
+  .btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:11px 20px;
+       font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn:hover{background:var(--teal-dark);}
+
+  .empty{border:1px dashed var(--line);border-radius:10px;padding:24px 16px;text-align:center;
+         color:var(--sub);font-size:14px;background:var(--panel);margin-bottom:22px;}
+
+  .exp-row{border-bottom:1px solid var(--line);padding:12px 0;
+           display:flex;justify-content:space-between;align-items:start;gap:10px;}
+  .exp-row:last-child{border-bottom:none;}
+  .exp-row .t{font-weight:700;font-size:14.5px;}
+  .exp-row .m{color:var(--sub);font-size:13px;}
+  .exp-row .d{color:var(--ink);font-size:13.5px;margin-top:6px;}
+  .exp-row button{border:1px solid var(--err);background:transparent;color:var(--err);
+                  cursor:pointer;font-size:13px;padding:4px 10px;border-radius:6px;font-family:inherit;}
+  .exp-row button:hover{background:var(--err-bg);}
+
+  hr{border:none;border-top:1px solid var(--line);margin:22px 0;}
+  h3{font-size:14.5px;margin:0 0 16px;}
+
+  .back-link{display:inline-flex;align-items:center;gap:6px;color:var(--teal);
+             text-decoration:none;font-size:14px;font-weight:600;margin-bottom:24px;}
+  .back-link:hover{text-decoration:underline;}
+
+  .form-error{background:var(--err-bg);color:var(--err);border:1px solid var(--err-line);
+              border-radius:8px;padding:9px 12px;font-size:13.5px;margin:0 0 20px;}
+
+  footer{border-top:1px solid var(--line);padding:20px 28px;display:flex;
+         justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13px;color:var(--sub);}
+
+  @media (max-width:560px){
+    header{padding:12px 16px;}
+    main{padding:24px 16px 48px;}
+  }
+
+  /* ---------- shared nav ---------- */
+  nav.desktop-nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  nav.desktop-nav a{color:var(--ink);text-decoration:none;font-size:14px;}
+  nav.desktop-nav a:hover{color:var(--teal);}
+  nav.desktop-nav a.has-dot{position:relative;}
+  nav.desktop-nav a .dot{
+    position:absolute;top:-2px;right:-6px;width:8px;height:8px;border-radius:50%;
+    background:#ef4444;display:inline-block;box-shadow:0 0 0 2px var(--bg);
+  }
+  nav.desktop-nav a.bell{position:relative;font-size:15px;}
+  nav.desktop-nav a.bell .badge-count{
+    position:absolute;top:-6px;right:-8px;min-width:16px;height:16px;padding:0 4px;
+    border-radius:8px;background:#ef4444;color:#fff;font-size:10.5px;font-weight:700;
+    display:inline-flex;align-items:center;justify-content:center;line-height:1;
+    box-shadow:0 0 0 2px var(--bg);
+  }
+
+  /* ---------- mobile: hamburger + drawer ---------- */
+  .hamburger{display:none;background:none;border:1px solid var(--line);border-radius:8px;
+    width:38px;height:38px;padding:8px;cursor:pointer;flex-direction:column;
+    justify-content:space-between;align-items:center;}
+  .hamburger span{display:block;width:100%;height:2px;background:var(--ink);border-radius:1px;}
+  .hamburger:hover{border-color:var(--teal);}
+
+  .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:40;}
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:min(280px,80vw);
+    background:var(--bg);border-left:1px solid var(--line);z-index:50;
+    transform:translateX(100%);transition:transform .25s ease;
+    display:flex;flex-direction:column;padding:16px;gap:4px;overflow-y:auto;}
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .drawer-title{font-weight:700;font-size:15px;}
+  .drawer-close{background:none;border:none;font-size:22px;line-height:1;cursor:pointer;color:var(--ink);}
+  .drawer a{color:var(--ink);text-decoration:none;font-size:15px;padding:10px 8px;
+    border-radius:8px;position:relative;display:flex;align-items:center;justify-content:space-between;}
+  .drawer a:hover{background:var(--panel);color:var(--teal);}
+  .drawer a .dot{width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;}
+  .drawer .drawer-logout{margin-top:auto;border-top:1px solid var(--line);padding-top:14px;}
+
+  @media (max-width:720px){
+    nav.desktop-nav{display:none;}
+    .hamburger{display:flex;}
+  }
+  @media (min-width:721px){
+    .drawer,.drawer-backdrop,.hamburger{display:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="/"><span class="logo">SM</span> SkillMatch</a>
+  {% include "_nav.html" %}
+  <!-- <a class="logout" href="/logout">Log out</a> -->
+</header>
+
+<main>
+  <a class="back-link" href="/u/{{ profile.user_id }}">← Back to your profile</a>
+
+  <h1>Edit profile</h1>
+  <p class="page-lede">Add a short headline and a description of what you do. These appear on your public profile.</p>
+
+  {% if error %}<p class="form-error">{{ error }}</p>{% endif %}
+
+  <div class="card">
+    <h2>About you</h2>
+    <p class="hint">A short headline and a description of what you do.</p>
+    <form method="post" action="/profile/edit">
+      <div class="field">
+        <label for="headline">Headline</label>
+        <input id="headline" name="headline" type="text"
+               placeholder="Backend Developer · Python &amp; SQL"
+               value="{{ profile.headline }}" maxlength="120">
+        <p class="helper">Up to 120 characters — keep it to a headline, not a paragraph.</p>
+      </div>
+      <div class="field">
+        <label for="bio">About</label>
+        <textarea id="bio" name="bio"
+                  placeholder="A short paragraph about your background and what you're looking for.">{{ profile.bio }}</textarea>
+      </div>
+      <button class="btn" type="submit">Save changes</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Experience</h2>
+    <p class="hint">Add your past roles so your profile shows where you've worked.</p>
+
+    <div id="expEmpty" class="empty"{% if profile.history %} style="display:none;"{% endif %}>
+      No experience added yet. Add your first role below.
+    </div>
+
+    <div id="expList">
+      {% for h in profile.history %}
+        <div class="exp-row" data-id="{{ h.entry_id }}">
+          <div>
+            <div class="t">{{ h.title }}{% if h.company %} · {{ h.company }}{% endif %}</div>
+            <div class="m">
+              {{ h.start_year }}{% if h.end_year %} – {{ h.end_year }}{% else %} – Present{% endif %}
+            </div>
+            {% if h.description %}<div class="d">{{ h.description }}</div>{% endif %}
+          </div>
+          <button type="button" data-del="{{ h.entry_id }}">Remove</button>
+        </div>
+      {% endfor %}
+    </div>
+
+    <hr{% if not profile.history %} style="display:none;"{% endif %} id="expDivider">
+    <h3>Add a role</h3>
+    <form id="expForm" method="post" action="/profile/history">
+      <div class="field">
+        <label for="title">Title</label>
+        <input id="title" name="title" type="text" placeholder="e.g. Junior Developer" required>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="company">Company <span class="optional">(optional)</span></label>
+          <input id="company" name="company" type="text" placeholder="e.g. Northwind Labs">
+        </div>
+        <div class="field">
+          <label for="start_year">Start year</label>
+          <input id="start_year" name="start_year" type="text" inputmode="numeric" placeholder="2023">
+        </div>
+      </div>
+      <div class="field">
+        <label for="end_year">End year</label>
+        <input id="end_year" name="end_year" type="text" inputmode="numeric"
+               placeholder="Leave blank if this is your current role">
+      </div>
+      <div class="field">
+        <label for="description">Description <span class="optional">(optional)</span></label>
+        <textarea id="description" name="description" placeholder="What did you work on?"></textarea>
+      </div>
+      <button class="btn" type="submit">Add experience</button>
+    </form>
+  </div>
+</main>
+
+<footer>
+  <div>SkillMatch — Explainable Skill-Based Job Recommendation System</div>
+  <div>Built with skill-based matching and skill gap analysis.</div>
+</footer>
+
+<script>
+document.getElementById('expForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  try {
+    const r = await fetch('/profile/history', { method: 'POST', body: f });
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      alert(d.error || 'Could not add the entry');
+      return;
+    }
+    location.reload();
+  } catch {
+    e.target.submit();
+  }
+});
+
+document.querySelectorAll('button[data-del]').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const id = btn.dataset.del;
+    if (!confirm('Delete this entry?')) return;
+    try {
+      const r = await fetch('/profile/history/' + encodeURIComponent(id), { method: 'DELETE' });
+      if (!r.ok) { alert('Delete failed'); return; }
+      location.reload();
+    } catch {
+      alert('Network error');
+    }
+  });
+});
+</script>
+
+<script>
+(function(){
+  const btn = document.getElementById('hamburgerBtn');
+  const drawer = document.getElementById('drawer');
+  const backdrop = document.getElementById('drawerBackdrop');
+  const closeBtn = document.getElementById('drawerClose');
+  if (!btn || !drawer || !backdrop) return;
+  function open(){
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden','false');
+    backdrop.hidden = false;
+    btn.setAttribute('aria-expanded','true');
+  }
+  function close(){
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden','true');
+    backdrop.hidden = true;
+    btn.setAttribute('aria-expanded','false');
+  }
+  btn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+})();
+</script>
+</body></html>

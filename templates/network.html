@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Network — SkillMatch</title>
+<style>
+  :root{
+    --teal:#0f766e;--teal-dark:#0b5e57;--teal-light:#ccfbf1;
+    --ink:#1f2937;--sub:#6b7280;--line:#e5e7eb;--bg:#fff;--panel:#f9fafb;
+    --err:#b91c1c;--err-bg:#fef2f2;--err-line:#fecaca;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--teal:#2dd4bf;--teal-dark:#5eead4;--teal-light:#0f2e2b;
+          --ink:#ececee;--sub:#9aa0aa;--line:#2c2f35;--bg:#141517;--panel:#1e2024;
+          --err:#fca5a5;--err-bg:#3b1212;--err-line:#7f1d1d;}
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+       color:var(--ink);background:var(--bg);line-height:1.55;}
+
+  header{display:flex;align-items:center;justify-content:space-between;
+         padding:14px 28px;border-bottom:1px solid var(--line);
+         position:sticky;top:0;background:var(--bg);z-index:10;flex-wrap:wrap;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;
+         text-decoration:none;color:var(--ink);}
+  .logo{width:32px;height:32px;border-radius:8px;background:var(--teal);color:#fff;
+        display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+  .logout{border:1px solid var(--line);background:transparent;color:var(--ink);
+          padding:7px 14px;border-radius:8px;font-size:14px;cursor:pointer;text-decoration:none;}
+  .logout:hover{border-color:var(--teal);color:var(--teal);}
+
+  main{max-width:700px;margin:0 auto;padding:36px 24px 60px;}
+  h1{font-size:26px;margin:0 0 6px;}
+  .lede{color:var(--sub);font-size:14.5px;margin:0 0 24px;}
+
+  .msg-box{border-radius:8px;padding:9px 12px;font-size:13.5px;margin:0 0 16px;
+           display:none;transition: opacity .35s ease;}
+  .msg-box.err{background:var(--err-bg);color:var(--err);border:1px solid var(--err-line);}
+  .msg-box.ok{background:var(--teal-light);color:var(--teal-dark);border:1px solid var(--teal);}
+  .msg-box.hide{opacity:0;}
+
+  .search{position:relative;margin-bottom:24px;}
+  .search input{width:100%;border:1px solid var(--line);border-radius:10px;
+                padding:12px 14px 12px 40px;font-size:14px;outline:none;
+                background:var(--bg);color:var(--ink);font-family:inherit;}
+  .search input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,118,110,.15);}
+  .search .icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);
+                color:var(--sub);pointer-events:none;font-size:14px;}
+  .results{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:20;
+           background:var(--bg);border:1px solid var(--line);border-radius:10px;
+           box-shadow:0 6px 18px rgba(0,0,0,.08);overflow:hidden;}
+  .results a{display:block;padding:10px 14px;text-decoration:none;color:inherit;
+             border-bottom:1px solid var(--line);font-size:14px;}
+  .results a:last-child{border-bottom:none;}
+  .results a:hover{background:var(--panel);}
+  .results .headline{color:var(--sub);font-size:12.5px;margin-top:2px;}
+  .results .none{padding:12px 14px;color:var(--sub);font-size:13px;}
+
+  .section{border:1px solid var(--line);border-radius:12px;margin-bottom:18px;
+           overflow:hidden;background:var(--bg);}
+  .section-head{padding:16px 20px 12px;}
+  .section-head h2{font-size:16px;margin:0 0 3px;}
+  .section-head p{color:var(--sub);font-size:13.5px;margin:0;}
+
+  .person-row{display:flex;align-items:center;justify-content:space-between;gap:14px;
+              padding:14px 20px;border-top:1px solid var(--line);flex-wrap:wrap;}
+  .person-info{min-width:0;flex:1;}
+  .person-info a{color:inherit;text-decoration:none;}
+  .person-info a:hover .name{color:var(--teal);}
+  .name{font-weight:700;font-size:14.5px;}
+  .role{color:var(--sub);font-size:13px;margin-top:1px;}
+  .pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .pill{background:var(--teal-light);color:var(--teal-dark);font-size:12px;
+        font-weight:600;padding:3px 10px;border-radius:999px;}
+  .actions{display:flex;gap:8px;flex-shrink:0;}
+
+  .btn{border:none;border-radius:8px;padding:8px 14px;font-size:13.5px;
+       font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;
+       display:inline-block;}
+  .btn-primary{background:var(--teal);color:#fff;}
+  .btn-primary:hover{background:var(--teal-dark);}
+  .btn-primary:disabled{opacity:.55;cursor:not-allowed;}
+  .btn-outline{background:transparent;border:1px solid var(--line);color:var(--ink);}
+  .btn-outline:hover{border-color:var(--err);color:var(--err);}
+
+  .empty-note{padding:16px 20px;color:var(--sub);font-size:13.5px;
+              border-top:1px solid var(--line);background:var(--panel);}
+
+  footer{border-top:1px solid var(--line);padding:20px 28px;text-align:center;
+         font-size:13px;color:var(--sub);margin-top:48px;}
+
+  @media (max-width:560px){
+    header{padding:12px 16px;}
+    main{padding:24px 16px 48px;}
+    .person-row{flex-direction:column;align-items:flex-start;}
+  }
+
+  /* ---------- shared nav ---------- */
+  nav.desktop-nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  nav.desktop-nav a{color:var(--ink);text-decoration:none;font-size:14px;}
+  nav.desktop-nav a:hover{color:var(--teal);}
+  nav.desktop-nav a.has-dot{position:relative;}
+  nav.desktop-nav a .dot{
+    position:absolute;top:-2px;right:-6px;width:8px;height:8px;border-radius:50%;
+    background:#ef4444;display:inline-block;box-shadow:0 0 0 2px var(--bg);
+  }
+  nav.desktop-nav a.bell{position:relative;font-size:15px;}
+  nav.desktop-nav a.bell .badge-count{
+    position:absolute;top:-6px;right:-8px;min-width:16px;height:16px;padding:0 4px;
+    border-radius:8px;background:#ef4444;color:#fff;font-size:10.5px;font-weight:700;
+    display:inline-flex;align-items:center;justify-content:center;line-height:1;
+    box-shadow:0 0 0 2px var(--bg);
+  }
+
+  /* ---------- mobile: hamburger + drawer ---------- */
+  .hamburger{display:none;background:none;border:1px solid var(--line);border-radius:8px;
+    width:38px;height:38px;padding:8px;cursor:pointer;flex-direction:column;
+    justify-content:space-between;align-items:center;}
+  .hamburger span{display:block;width:100%;height:2px;background:var(--ink);border-radius:1px;}
+  .hamburger:hover{border-color:var(--teal);}
+
+  .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:40;}
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:min(280px,80vw);
+    background:var(--bg);border-left:1px solid var(--line);z-index:50;
+    transform:translateX(100%);transition:transform .25s ease;
+    display:flex;flex-direction:column;padding:16px;gap:4px;overflow-y:auto;}
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .drawer-title{font-weight:700;font-size:15px;}
+  .drawer-close{background:none;border:none;font-size:22px;line-height:1;cursor:pointer;color:var(--ink);}
+  .drawer a{color:var(--ink);text-decoration:none;font-size:15px;padding:10px 8px;
+    border-radius:8px;position:relative;display:flex;align-items:center;justify-content:space-between;}
+  .drawer a:hover{background:var(--panel);color:var(--teal);}
+  .drawer a .dot{width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;}
+  .drawer .drawer-logout{margin-top:auto;border-top:1px solid var(--line);padding-top:14px;}
+
+  @media (max-width:720px){
+    nav.desktop-nav{display:none;}
+    .hamburger{display:flex;}
+  }
+  @media (min-width:721px){
+    .drawer,.drawer-backdrop,.hamburger{display:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="/"><span class="logo">SM</span> SkillMatch</a>
+  {% include "_nav.html" %}
+  <!-- <a class="logout" href="/logout">Log out</a> -->
+</header>
+
+<main>
+  <h1>Network</h1>
+  <p class="lede">Find and connect with people whose skills overlap with yours.</p>
+
+  <p id="errBox" class="msg-box err"></p>
+  <p id="okBox" class="msg-box ok"></p>
+
+  <div class="search">
+    <span class="icon">🔍</span>
+    <input id="q" type="text" placeholder="Search people by name or headline"
+           autocomplete="off">
+    <div class="results" id="results" style="display:none;"></div>
+  </div>
+
+  {% if pending %}
+  <div class="section" id="pendingSection">
+    <div class="section-head">
+      <h2>Pending requests</h2>
+      <p>People who would like to connect with you.</p>
+    </div>
+    {% for p in pending %}
+      <div class="person-row" data-uid="{{ p.user_id }}">
+        <div class="person-info">
+          <a href="/u/{{ p.user_id }}"><div class="name">{{ p.full_name }}</div></a>
+          {% if p.headline %}<div class="role">{{ p.headline }}</div>{% endif %}
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" data-accept="{{ p.user_id }}">Accept</button>
+          <button class="btn btn-outline" data-reject="{{ p.user_id }}">Reject</button>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="section" id="connectionsSection">
+    <div class="section-head">
+      <h2>Connections</h2>
+      <p>People you're connected with.</p>
+    </div>
+    {% if connections %}
+      {% for c in connections %}
+        <div class="person-row">
+          <div class="person-info">
+            <a href="/u/{{ c.user_id }}"><div class="name">{{ c.full_name }}</div></a>
+            {% if c.headline %}<div class="role">{{ c.headline }}</div>{% endif %}
+          </div>
+          <div class="actions">
+            <a class="btn btn-primary" href="/messages/{{ c.user_id }}">Message</a>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-note">You're not connected with anyone yet — use the suggestions below to get started.</div>
+    {% endif %}
+  </div>
+
+  <div class="section" id="suggestionsSection">
+    <div class="section-head">
+      <h2>Suggestions</h2>
+      <p>People you may know, based on shared skills.</p>
+    </div>
+    {% if suggestions %}
+      {% for s in suggestions %}
+        <div class="person-row" data-uid="{{ s.user_id }}">
+          <div class="person-info">
+            <a href="/u/{{ s.user_id }}"><div class="name">{{ s.full_name }}</div></a>
+            {% if s.headline %}<div class="role">{{ s.headline }}</div>{% endif %}
+            {% if s.shared_skills %}
+              <div class="pills">
+                {% for skill in s.shared_skills %}<span class="pill">{{ skill }}</span>{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" data-connect="{{ s.user_id }}" data-state="connect">Connect</button>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-note">No suggestions right now. Add more skills to your profile to see shared-skill matches here.</div>
+    {% endif %}
+  </div>
+</main>
+
+<footer>SkillMatch — explainable, skill-based job matching with a lightweight professional network.</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const errBox = $('errBox');
+const okBox = $('okBox');
+const input = $('q');
+const results = $('results');
+
+let errTimer = null;
+let okTimer = null;
+
+function fadeOutThen(el, delay){
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => {
+    el.classList.add('hide');
+    setTimeout(() => { el.style.display = 'none'; el.classList.remove('hide'); }, 350);
+  }, delay);
+}
+
+function showErr(msg){
+  errBox.textContent = msg;
+  errBox.classList.remove('hide');
+  errBox.style.display = 'block';
+  okBox.style.display = 'none';
+  clearTimeout(errTimer);
+  fadeOutThen(errBox, 4000);
+  errTimer = errBox._timer;
+}
+function showOk(msg){
+  okBox.textContent = msg;
+  okBox.classList.remove('hide');
+  okBox.style.display = 'block';
+  errBox.style.display = 'none';
+  clearTimeout(okTimer);
+  fadeOutThen(okBox, 4000);
+  okTimer = okBox._timer;
+}
+function clearMsgs(){
+  errBox.style.display = 'none';
+  okBox.style.display = 'none';
+  clearTimeout(errTimer);
+  clearTimeout(okTimer);
+}
+
+async function post(url){
+  try {
+    const r = await fetch(url, {method: 'POST'});
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) { showErr(d.error || 'Action failed.'); return false; }
+    clearMsgs();
+    return true;
+  } catch {
+    showErr('Network error. Please try again.');
+    return false;
+  }
+}
+
+document.querySelectorAll('[data-accept]').forEach(b => b.addEventListener('click', async () => {
+  const uid = b.dataset.accept;
+  b.disabled = true;
+  if (await post('/connect/' + uid + '/accept')){
+    showOk('You are now connected. You can message them from the Connections list.');
+    const row = document.querySelector('.person-row[data-uid="' + uid + '"]');
+    if (row) row.remove();
+    if (!document.querySelector('#pendingSection .person-row')){
+      $('pendingSection').remove();
+    }
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    b.disabled = false;
+  }
+}));
+
+document.querySelectorAll('[data-reject]').forEach(b => b.addEventListener('click', async () => {
+  const uid = b.dataset.reject;
+  b.disabled = true;
+  if (await post('/connect/' + uid + '/reject')){
+    showOk('Request declined.');
+    const row = document.querySelector('.person-row[data-uid="' + uid + '"]');
+    if (row) row.remove();
+    if (!document.querySelector('#pendingSection .person-row')){
+      $('pendingSection').remove();
+    }
+  } else {
+    b.disabled = false;
+  }
+}));
+
+document.querySelectorAll('[data-connect]').forEach(b => {
+  b.addEventListener('click', async () => {
+    const uid = b.dataset.connect;
+    const state = b.dataset.state;
+    b.disabled = true;
+
+    if (state === 'connect'){
+      if (await post('/connect/' + uid)){
+        b.textContent = 'Cancel request';
+        b.classList.remove('btn-primary');
+        b.classList.add('btn-outline');
+        b.dataset.state = 'cancel';
+        showOk('Request sent. You can message this person once they accept. Click again to cancel.');
+      }
+    } else {
+      if (await post('/connect/' + uid + '/cancel')){
+        b.textContent = 'Connect';
+        b.classList.remove('btn-outline');
+        b.classList.add('btn-primary');
+        b.dataset.state = 'connect';
+        showOk('Request cancelled. You can send it again any time.');
+      }
+    }
+    b.disabled = false;
+  });
+});
+
+let searchTimer = null;
+input.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  const q = input.value.trim();
+  if (q.length < 2){
+    results.style.display = 'none';
+    results.innerHTML = '';
+    return;
+  }
+  searchTimer = setTimeout(async () => {
+    try {
+      const r = await fetch('/api/people/search?q=' + encodeURIComponent(q));
+      const list = await r.json();
+      if (!list.length){
+        results.innerHTML = '<div class="none">No matches.</div>';
+      } else {
+        results.innerHTML = list.map(p => `
+          <a href="/u/${p.user_id}">
+            <div>${escapeHtml(p.full_name)}</div>
+            ${p.headline ? `<div class="headline">${escapeHtml(p.headline)}</div>` : ''}
+          </a>
+        `).join('');
+      }
+      results.style.display = 'block';
+    } catch {
+      results.style.display = 'none';
+    }
+  }, 180);
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search')) results.style.display = 'none';
+});
+input.addEventListener('focus', () => { if (results.innerHTML) results.style.display = 'block'; });
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+
+<script>
+(function(){
+  const btn = document.getElementById('hamburgerBtn');
+  const drawer = document.getElementById('drawer');
+  const backdrop = document.getElementById('drawerBackdrop');
+  const closeBtn = document.getElementById('drawerClose');
+  if (!btn || !drawer || !backdrop) return;
+  function open(){
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden','false');
+    backdrop.hidden = false;
+    btn.setAttribute('aria-expanded','true');
+  }
+  function close(){
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden','true');
+    backdrop.hidden = true;
+    btn.setAttribute('aria-expanded','false');
+  }
+  btn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+})();
+</script>
+</body></html>

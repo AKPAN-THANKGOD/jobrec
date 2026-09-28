@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Admin — SkillMatch</title>
+<style>
+  :root{
+    --teal:#0f766e;--teal-dark:#0b5e57;--teal-light:#ccfbf1;
+    --amber-light:#fde8c8;--amber-dark:#92400e;
+    --ink:#1f2937;--sub:#6b7280;--line:#e5e7eb;--bg:#fff;--panel:#f9fafb;
+    --danger:#b91c1c;--danger-light:#fef2f2;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--teal:#2dd4bf;--teal-dark:#5eead4;--teal-light:#0f2e2b;
+          --amber-light:#3a2a0d;--amber-dark:#fbbf24;
+          --ink:#ececee;--sub:#9aa0aa;--line:#2c2f35;--bg:#141517;--panel:#1e2024;
+          --danger:#fca5a5;--danger-light:#3b1212;}
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+       color:var(--ink);background:var(--bg);line-height:1.55;}
+
+  header{display:flex;align-items:center;justify-content:space-between;
+         padding:14px 28px;border-bottom:1px solid var(--line);
+         position:sticky;top:0;background:var(--bg);z-index:10;flex-wrap:wrap;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;
+         text-decoration:none;color:var(--ink);}
+  .logo{width:32px;height:32px;border-radius:8px;background:var(--teal);color:#fff;
+        display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+  .badge{font-size:13px;padding:5px 10px;border-radius:999px;display:flex;align-items:center;gap:6px;}
+  .badge.amber{background:var(--amber-light);color:var(--amber-dark);}
+  .badge.teal{background:var(--teal-light);color:var(--teal-dark);}
+  .dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+  .dot.amber{background:#d97706;} .dot.teal{background:#22c55e;}
+  .logout{border:1px solid var(--line);background:transparent;color:var(--ink);
+          padding:7px 14px;border-radius:8px;font-size:14px;cursor:pointer;text-decoration:none;}
+  .logout:hover{border-color:var(--teal);color:var(--teal);}
+
+  main{max-width:900px;margin:0 auto;padding:36px 24px 60px;}
+  .page-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:26px;}
+  h1{font-size:28px;margin:0 0 6px;}
+  .page-lede{color:var(--sub);font-size:14.5px;margin:0;}
+  #saveStatus{font-size:13px;color:var(--sub);}
+  #saveStatus.saved{color:var(--teal-dark);font-weight:600;}
+  #saveStatus.err{color:var(--danger);font-weight:600;}
+
+  .card{border:1px solid var(--line);border-radius:14px;padding:26px;
+        margin-bottom:28px;background:var(--bg);}
+  .card h2{font-size:17px;margin:0 0 4px;}
+  .card .hint{color:var(--sub);font-size:13.5px;margin:0 0 20px;}
+
+  label{display:block;font-size:13.5px;font-weight:600;margin-bottom:6px;}
+  .field{margin-bottom:16px;}
+  input,textarea{width:100%;border:1px solid var(--line);border-radius:8px;
+                 padding:11px 12px;font-size:14px;outline:none;
+                 background:var(--bg);color:var(--ink);font-family:inherit;}
+  textarea{resize:vertical;min-height:90px;}
+  input:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,118,110,.15);}
+  .helper{font-size:12.5px;color:var(--sub);margin-top:6px;}
+  .req{color:var(--danger);}
+
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:500px){.row2{grid-template-columns:1fr;}}
+
+  .btn-row{display:flex;align-items:center;gap:14px;margin-top:4px;flex-wrap:wrap;}
+  .btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 18px;
+       font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn:hover{background:var(--teal-dark);}
+  .btn-outline{background:transparent;border:1px solid var(--line);color:var(--ink);
+               border-radius:8px;padding:10px 18px;font-size:14px;font-weight:600;
+               cursor:pointer;font-family:inherit;}
+  .btn-outline:hover{border-color:var(--teal);color:var(--teal);}
+  .link-btn{background:none;border:none;color:var(--sub);font-size:14px;cursor:pointer;
+            text-decoration:underline;font-family:inherit;}
+  .link-btn:hover{color:var(--ink);}
+
+  hr.sep{border:none;border-top:1px solid var(--line);margin:24px 0;}
+
+  .list-item{border-bottom:1px solid var(--line);padding:14px 0;
+             display:flex;justify-content:space-between;align-items:start;gap:12px;}
+  .list-item:last-child{border-bottom:none;padding-bottom:0;}
+  .li-title{font-weight:700;font-size:14.5px;}
+  .li-sub{color:var(--sub);font-size:13px;margin-top:2px;}
+  .li-tags{color:var(--teal-dark);font-size:12.5px;margin-top:4px;}
+  .li-actions{display:flex;gap:8px;flex-shrink:0;}
+  .btn-sm{border:1px solid var(--line);background:transparent;color:var(--ink);
+          padding:6px 12px;border-radius:7px;font-size:13px;cursor:pointer;
+          font-weight:600;font-family:inherit;}
+  .btn-sm:hover{border-color:var(--teal);color:var(--teal);}
+  .btn-sm.danger{border-color:var(--amber-dark);color:var(--amber-dark);background:transparent;}
+  .btn-sm.danger:hover{background:var(--amber-light);}
+  .empty{border:1px dashed var(--line);border-radius:10px;padding:22px;
+         text-align:center;color:var(--sub);font-size:13.5px;background:var(--panel);}
+
+  footer{border-top:1px solid var(--line);padding:20px 28px;display:flex;
+         justify-content:space-between;flex-wrap:wrap;gap:8px;
+         font-size:13px;color:var(--sub);}
+
+  @media (max-width:560px){
+    header{padding:12px 16px;}
+    main{padding:24px 16px 48px;}
+  }
+
+  /* ---------- shared nav ---------- */
+  nav.desktop-nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  nav.desktop-nav a{color:var(--ink);text-decoration:none;font-size:14px;}
+  nav.desktop-nav a:hover{color:var(--teal);}
+  nav.desktop-nav a.has-dot{position:relative;}
+  nav.desktop-nav a .dot{
+    position:absolute;top:-2px;right:-6px;width:8px;height:8px;border-radius:50%;
+    background:#ef4444;display:inline-block;box-shadow:0 0 0 2px var(--bg);
+  }
+  nav.desktop-nav a.bell{position:relative;font-size:15px;}
+  nav.desktop-nav a.bell .badge-count{
+    position:absolute;top:-6px;right:-8px;min-width:16px;height:16px;padding:0 4px;
+    border-radius:8px;background:#ef4444;color:#fff;font-size:10.5px;font-weight:700;
+    display:inline-flex;align-items:center;justify-content:center;line-height:1;
+    box-shadow:0 0 0 2px var(--bg);
+  }
+
+  /* ---------- mobile: hamburger + drawer ---------- */
+  .hamburger{display:none;background:none;border:1px solid var(--line);border-radius:8px;
+    width:38px;height:38px;padding:8px;cursor:pointer;flex-direction:column;
+    justify-content:space-between;align-items:center;}
+  .hamburger span{display:block;width:100%;height:2px;background:var(--ink);border-radius:1px;}
+  .hamburger:hover{border-color:var(--teal);}
+
+  .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:40;}
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:min(280px,80vw);
+    background:var(--bg);border-left:1px solid var(--line);z-index:50;
+    transform:translateX(100%);transition:transform .25s ease;
+    display:flex;flex-direction:column;padding:16px;gap:4px;overflow-y:auto;}
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .drawer-title{font-weight:700;font-size:15px;}
+  .drawer-close{background:none;border:none;font-size:22px;line-height:1;cursor:pointer;color:var(--ink);}
+  .drawer a{color:var(--ink);text-decoration:none;font-size:15px;padding:10px 8px;
+    border-radius:8px;position:relative;display:flex;align-items:center;justify-content:space-between;}
+  .drawer a:hover{background:var(--panel);color:var(--teal);}
+  .drawer a .dot{width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;}
+  .drawer .drawer-logout{margin-top:auto;border-top:1px solid var(--line);padding-top:14px;}
+
+  @media (max-width:720px){
+    nav.desktop-nav{display:none;}
+    .hamburger{display:flex;}
+  }
+  @media (min-width:721px){
+    .drawer,.drawer-backdrop,.hamburger{display:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="/"><span class="logo">SM</span> SkillMatch</a>
+  {% include "_nav.html" %}
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span class="badge amber"><span class="dot amber"></span> Admin mode</span>
+    <span class="badge teal"><span class="dot teal"></span> {{ name }}</span>
+    <!-- <a class="logout" href="/logout">Log out</a> -->
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <div>
+      <h1>Administrator</h1>
+      <p class="page-lede">Maintain the vacancies and the skill taxonomy the recommender relies on.</p>
+    </div>
+    <span id="saveStatus">No changes yet.</span>
+  </div>
+
+  <div class="card">
+    <h2>Vacancies</h2>
+    <p class="hint">Add a vacancy, or edit an existing one.</p>
+
+    <form id="vacForm">
+      <input type="hidden" id="vacId">
+      <div class="field">
+        <label for="vacTitle">Title <span class="req">*</span></label>
+        <input id="vacTitle" type="text" placeholder="Junior Web Developer" required>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="vacCompany">Company</label>
+          <input id="vacCompany" type="text" placeholder="Northwind Labs">
+        </div>
+        <div class="field">
+          <label for="vacLocation">Location</label>
+          <input id="vacLocation" type="text" placeholder="Lagos · Hybrid">
+        </div>
+      </div>
+      <div class="field">
+        <label for="vacDesc">Description <span class="req">*</span></label>
+        <textarea id="vacDesc" placeholder="Paste the text of the job advert here." required></textarea>
+      </div>
+      <div class="field">
+        <label for="vacSkills">Required skills</label>
+        <input id="vacSkills" type="text" placeholder="Comma-separated (aliases accepted)">
+        <p class="helper">Aliases are matched to their canonical skill when you save.</p>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn-outline" id="extractBtn">Extract skills from description</button>
+        <button type="submit" class="btn" id="vacSave">Save vacancy</button>
+        <button type="button" class="link-btn" id="vacClear">Clear</button>
+      </div>
+    </form>
+
+    <hr class="sep">
+    <div id="vacList"></div>
+  </div>
+
+  <div class="card">
+    <h2>Skill taxonomy</h2>
+    <p class="hint">Each skill has one canonical name and any number of aliases. No alias may belong to more than one skill.</p>
+
+    <form id="skillForm">
+      <input type="hidden" id="skillId">
+      <div class="row2">
+        <div class="field">
+          <label for="skillName">Canonical name <span class="req">*</span></label>
+          <input id="skillName" type="text" placeholder="Python" required>
+        </div>
+        <div class="field">
+          <label for="skillCategory">Category</label>
+          <input id="skillCategory" type="text" placeholder="Programming">
+        </div>
+      </div>
+      <div class="field">
+        <label for="skillAliases">Aliases</label>
+        <input id="skillAliases" type="text" placeholder="python3, py">
+        <p class="helper">Comma-separated. Optional.</p>
+      </div>
+      <div class="btn-row">
+        <button type="submit" class="btn" id="skillSave">Save skill</button>
+        <button type="button" class="link-btn" id="skillClear">Clear</button>
+      </div>
+    </form>
+
+    <hr class="sep">
+    <div id="skillList"></div>
+  </div>
+</main>
+
+<footer>
+  <div>SkillMatch — Explainable Skill-Based Job Recommendation System</div>
+  <div>Built with skill-based matching and skill gap analysis.</div>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const statusEl = $('saveStatus');
+let editingJobId = null;
+let editingSkillId = null;
+
+function setStatus(msg, kind){
+  statusEl.textContent = msg;
+  statusEl.className = kind === 'err' ? 'err' : kind === 'ok' ? 'saved' : '';
+}
+
+async function api(method, url, body){
+  const opts = { method, headers: {'Content-Type': 'application/json'} };
+  if (body !== undefined) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  const data = await r.json().catch(() => ({}));
+  return { ok: r.ok, data };
+}
+
+async function loadJobs(){
+  const { data } = await api('GET', '/admin/api/jobs');
+  const list = $('vacList');
+  if (!data || !data.length){
+    list.innerHTML = '<div class="empty">No vacancies yet — add your first one above.</div>';
+    return;
+  }
+  list.innerHTML = data.map(j => `
+    <div class="list-item">
+      <div>
+        <div class="li-title">${escapeHtml(j.title)}${j.company ? ' · ' + escapeHtml(j.company) : ''}</div>
+        ${j.location ? `<div class="li-sub">${escapeHtml(j.location)}</div>` : ''}
+        <div class="li-tags">[${j.skills.map(escapeHtml).join(', ')}]</div>
+      </div>
+      <div class="li-actions">
+        <button class="btn-sm" data-edit="${j.job_id}">Edit</button>
+        <button class="btn-sm danger" data-del="${j.job_id}">Delete</button>
+      </div>
+    </div>`).join('');
+  list.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => editJob(data.find(x => x.job_id === +b.dataset.edit)));
+  list.querySelectorAll('[data-del]').forEach(b => b.onclick = () => deleteJob(+b.dataset.del));
+}
+
+function editJob(j){
+  if (!j) return;
+  editingJobId = j.job_id;
+  $('vacId').value = j.job_id;
+  $('vacTitle').value = j.title || '';
+  $('vacCompany').value = j.company || '';
+  $('vacLocation').value = j.location || '';
+  $('vacDesc').value = j.description || '';
+  $('vacSkills').value = j.skills.join(', ');
+  $('vacSave').textContent = 'Update vacancy';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+async function deleteJob(id){
+  if (!confirm('Delete this vacancy?')) return;
+  const { ok, data } = await api('DELETE', '/admin/api/jobs/' + id);
+  if (!ok) return setStatus(data.error || 'Delete failed.', 'err');
+  setStatus('Vacancy deleted.', 'ok');
+  loadJobs();
+}
+
+$('vacForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const skills = $('vacSkills').value.split(',').map(s => s.trim()).filter(Boolean);
+  const body = {
+    title: $('vacTitle').value.trim(),
+    company: $('vacCompany').value.trim(),
+    location: $('vacLocation').value.trim(),
+    description: $('vacDesc').value.trim(),
+    skills,
+  };
+  const method = editingJobId ? 'PUT' : 'POST';
+  const url = editingJobId ? '/admin/api/jobs/' + editingJobId : '/admin/api/jobs';
+  const { ok, data } = await api(method, url, body);
+  if (!ok) return setStatus(data.error || 'Save failed.', 'err');
+  const ignored = data.unrecognised && data.unrecognised.length;
+  setStatus('Vacancy ' + (editingJobId ? 'updated' : 'saved') +
+            (ignored ? ' · ignored: ' + data.unrecognised.join(', ') : '.'), 'ok');
+  resetJobForm();
+  loadJobs();
+});
+
+$('vacClear').onclick = resetJobForm;
+function resetJobForm(){
+  editingJobId = null;
+  $('vacForm').reset();
+  $('vacId').value = '';
+  $('vacSave').textContent = 'Save vacancy';
+}
+
+$('extractBtn').onclick = async () => {
+  const text = $('vacDesc').value;
+  if (!text.trim()) return setStatus('Paste a description first.', 'err');
+  const { ok, data } = await api('POST', '/admin/api/extract', { text });
+  if (!ok) return setStatus('Could not extract skills.', 'err');
+  if (!data.length) return setStatus('No skills recognised in the description.', 'err');
+  $('vacSkills').value = data.join(', ');
+  setStatus('Extracted ' + data.length + ' skill' + (data.length === 1 ? '' : 's') + '.', 'ok');
+};
+
+async function loadSkills(){
+  const { data } = await api('GET', '/admin/api/skills');
+  const list = $('skillList');
+  if (!data || !data.length){
+    list.innerHTML = '<div class="empty">No skills yet — add your first one above.</div>';
+    return;
+  }
+  data.sort((a, b) => a.skill_name.localeCompare(b.skill_name));
+  list.innerHTML = data.map(s => `
+    <div class="list-item">
+      <div>
+        <div class="li-title">${escapeHtml(s.skill_name)}
+          <span style="color:var(--sub);font-weight:400;">(${escapeHtml(s.category || 'Uncategorized')})</span>
+        </div>
+        ${s.aliases ? `<div class="li-sub">· ${escapeHtml(s.aliases)}</div>` : ''}
+      </div>
+      <div class="li-actions">
+        <button class="btn-sm" data-edit="${s.skill_id}">Edit</button>
+        <button class="btn-sm danger" data-del="${s.skill_id}">Delete</button>
+      </div>
+    </div>`).join('');
+  list.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => editSkill(data.find(x => x.skill_id === +b.dataset.edit)));
+  list.querySelectorAll('[data-del]').forEach(b => b.onclick = () => deleteSkill(+b.dataset.del));
+}
+
+function editSkill(s){
+  if (!s) return;
+  editingSkillId = s.skill_id;
+  $('skillId').value = s.skill_id;
+  $('skillName').value = s.skill_name || '';
+  $('skillCategory').value = s.category || '';
+  $('skillAliases').value = s.aliases || '';
+  $('skillSave').textContent = 'Update skill';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+async function deleteSkill(id){
+  if (!confirm('Delete this skill and remove it from all vacancies and profiles?')) return;
+  const { ok, data } = await api('DELETE', '/admin/api/skills/' + id);
+  if (!ok) return setStatus(data.error || 'Delete failed.', 'err');
+  setStatus('Skill deleted.', 'ok');
+  loadSkills();
+}
+
+$('skillForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const body = {
+    skill_name: $('skillName').value.trim(),
+    category: $('skillCategory').value.trim(),
+    aliases: $('skillAliases').value.trim(),
+  };
+  const method = editingSkillId ? 'PUT' : 'POST';
+  const url = editingSkillId ? '/admin/api/skills/' + editingSkillId : '/admin/api/skills';
+  const { ok, data } = await api(method, url, body);
+  if (!ok) return setStatus(data.error || 'Save failed.', 'err');
+  setStatus('Skill ' + (editingSkillId ? 'updated' : 'saved') + '.', 'ok');
+  resetSkillForm();
+  loadSkills();
+});
+
+$('skillClear').onclick = resetSkillForm;
+function resetSkillForm(){
+  editingSkillId = null;
+  $('skillForm').reset();
+  $('skillId').value = '';
+  $('skillSave').textContent = 'Save skill';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+loadJobs();
+loadSkills();
+</script>
+
+<script>
+(function(){
+  const btn = document.getElementById('hamburgerBtn');
+  const drawer = document.getElementById('drawer');
+  const backdrop = document.getElementById('drawerBackdrop');
+  const closeBtn = document.getElementById('drawerClose');
+  if (!btn || !drawer || !backdrop) return;
+  function open(){
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden','false');
+    backdrop.hidden = false;
+    btn.setAttribute('aria-expanded','true');
+  }
+  function close(){
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden','true');
+    backdrop.hidden = true;
+    btn.setAttribute('aria-expanded','false');
+  }
+  btn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+})();
+</script>
+</body></html>

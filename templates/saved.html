@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saved jobs — SkillMatch</title>
+<style>
+  :root{
+    --teal:#0f766e;--teal-dark:#0b5e57;--teal-light:#ccfbf1;
+    --ink:#1f2937;--sub:#6b7280;--line:#e5e7eb;--bg:#fff;--panel:#f9fafb;
+    --warn:#b45309;--warn-bg:#fef3c7;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--teal:#2dd4bf;--teal-dark:#5eead4;--teal-light:#0f2e2b;
+          --ink:#ececee;--sub:#9aa0aa;--line:#2c2f35;--bg:#141517;--panel:#1e2024;
+          --warn:#fbbf24;--warn-bg:#3a2a0d;}
+  }
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+       color:var(--ink);background:var(--bg);line-height:1.55;margin:0;}
+
+  header{display:flex;align-items:center;justify-content:space-between;
+         padding:14px 28px;border-bottom:1px solid var(--line);
+         position:sticky;top:0;background:var(--bg);z-index:10;flex-wrap:wrap;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;
+         text-decoration:none;color:var(--ink);}
+  .logo{width:32px;height:32px;border-radius:8px;background:var(--teal);color:#fff;
+        display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+
+  /* ---------- shared nav ---------- */
+  nav.desktop-nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  nav.desktop-nav a{color:var(--ink);text-decoration:none;font-size:14px;}
+  nav.desktop-nav a:hover{color:var(--teal);}
+  nav.desktop-nav a.has-dot{position:relative;}
+  nav.desktop-nav a .dot{
+    position:absolute;top:-2px;right:-6px;width:8px;height:8px;border-radius:50%;
+    background:#ef4444;display:inline-block;box-shadow:0 0 0 2px var(--bg);
+  }
+  nav.desktop-nav a.bell{position:relative;font-size:15px;}
+  nav.desktop-nav a.bell .badge-count{
+    position:absolute;top:-6px;right:-8px;min-width:16px;height:16px;padding:0 4px;
+    border-radius:8px;background:#ef4444;color:#fff;font-size:10.5px;font-weight:700;
+    display:inline-flex;align-items:center;justify-content:center;line-height:1;
+    box-shadow:0 0 0 2px var(--bg);
+  }
+
+  /* ---------- mobile: hamburger + drawer ---------- */
+  .hamburger{display:none;background:none;border:1px solid var(--line);border-radius:8px;
+    width:38px;height:38px;padding:8px;cursor:pointer;flex-direction:column;
+    justify-content:space-between;align-items:center;}
+  .hamburger span{display:block;width:100%;height:2px;background:var(--ink);border-radius:1px;}
+  .hamburger:hover{border-color:var(--teal);}
+
+  .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:40;}
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:min(280px,80vw);
+    background:var(--bg);border-left:1px solid var(--line);z-index:50;
+    transform:translateX(100%);transition:transform .25s ease;
+    display:flex;flex-direction:column;padding:16px;gap:4px;overflow-y:auto;}
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .drawer-title{font-weight:700;font-size:15px;}
+  .drawer-close{background:none;border:none;font-size:22px;line-height:1;cursor:pointer;color:var(--ink);}
+  .drawer a{color:var(--ink);text-decoration:none;font-size:15px;padding:10px 8px;
+    border-radius:8px;position:relative;display:flex;align-items:center;justify-content:space-between;}
+  .drawer a:hover{background:var(--panel);color:var(--teal);}
+  .drawer a .dot{width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;}
+  .drawer .drawer-logout{margin-top:auto;border-top:1px solid var(--line);padding-top:14px;}
+
+  @media (max-width:720px){
+    nav.desktop-nav{display:none;}
+    .hamburger{display:flex;}
+  }
+  @media (min-width:721px){
+    .drawer,.drawer-backdrop,.hamburger{display:none !important;}
+  }
+
+  /* ---------- page ---------- */
+  main{max-width:720px;margin:0 auto;padding:36px 24px 60px;}
+  h1{font-size:26px;margin:0 0 6px;}
+  .lede{color:var(--sub);font-size:14.5px;margin:0 0 24px;}
+
+  .job{border:1px solid var(--line);border-radius:12px;padding:16px 18px;
+       margin-bottom:12px;background:var(--bg);}
+  .job-title{font-weight:700;font-size:15.5px;}
+  .job-sub{color:var(--sub);font-size:13px;margin:4px 0 8px;}
+  .job-desc{font-size:13.5px;color:var(--ink);margin:6px 0 10px;
+            white-space:pre-wrap;line-height:1.5;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+  .chip{background:var(--teal-light);color:var(--teal-dark);font-size:12px;
+        font-weight:600;padding:3px 10px;border-radius:999px;}
+  .job-actions{margin-top:12px;display:flex;justify-content:flex-end;gap:8px;}
+  .btn{border:1px solid var(--line);background:transparent;color:var(--ink);
+       padding:7px 14px;border-radius:8px;font-size:13.5px;font-weight:600;
+       cursor:pointer;font-family:inherit;text-decoration:none;display:inline-block;}
+  .btn:hover{border-color:var(--teal);color:var(--teal);}
+  .btn-danger{border-color:var(--warn);color:var(--warn);}
+  .btn-danger:hover{background:var(--warn-bg);border-color:var(--warn);color:var(--warn);}
+
+  .empty{border:1px dashed var(--line);border-radius:12px;padding:40px 20px;
+         text-align:center;color:var(--sub);font-size:14px;background:var(--panel);}
+  .empty a{color:var(--teal);text-decoration:none;font-weight:600;}
+  .empty a:hover{text-decoration:underline;}
+
+  footer{border-top:1px solid var(--line);padding:20px 28px;text-align:center;
+         font-size:13px;color:var(--sub);margin-top:48px;}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="/"><span class="logo">SM</span> SkillMatch</a>
+  {% include "_nav.html" %}
+</header>
+
+<main>
+  <h1>Saved jobs</h1>
+  <p class="lede">Vacancies you've bookmarked. Click the star on a recommendation to add or remove one.</p>
+
+  {% if jobs %}
+    {% for j in jobs %}
+      <div class="job" data-id="{{ j.job_id }}">
+        <div class="job-title">{{ j.title }}</div>
+        <div class="job-sub">
+          {{ j.company or 'Unknown company' }}{% if j.location %} · {{ j.location }}{% endif %}
+          · saved {{ j.saved_at }}
+        </div>
+        {% if j.skills %}
+          <div class="chips">
+            {% for s in j.skills %}<span class="chip">{{ s }}</span>{% endfor %}
+          </div>
+        {% endif %}
+        {% if j.description %}
+          <div class="job-desc">{{ j.description }}</div>
+        {% endif %}
+        <div class="job-actions">
+          <button class="btn btn-danger" data-remove="{{ j.job_id }}">Remove</button>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty">
+      You haven't saved any jobs yet.<br>
+      Get recommendations on the <a href="/">home page</a> and tap the ☆ next to a job you like.
+    </div>
+  {% endif %}
+</main>
+
+<footer>SkillMatch — explainable, skill-based job matching with a lightweight professional network.</footer>
+
+<script>
+document.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', async () => {
+  const id = b.dataset.remove;
+  b.disabled = true;
+  try {
+    const r = await fetch('/api/saved/' + id + '/toggle', {method: 'POST'});
+    const d = await r.json().catch(() => ({}));
+    if (d.saved === false){
+      location.reload();
+    } else {
+      b.disabled = false;
+    }
+  } catch {
+    b.disabled = false;
+  }
+}));
+</script>
+
+<script>
+(function(){
+  const btn = document.getElementById('hamburgerBtn');
+  const drawer = document.getElementById('drawer');
+  const backdrop = document.getElementById('drawerBackdrop');
+  const closeBtn = document.getElementById('drawerClose');
+  if (!btn || !drawer || !backdrop) return;
+  function open(){
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden','false');
+    backdrop.hidden = false;
+    btn.setAttribute('aria-expanded','true');
+  }
+  function close(){
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden','true');
+    backdrop.hidden = true;
+    btn.setAttribute('aria-expanded','false');
+  }
+  btn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+})();
+</script>
+</body></html>

@@ -1,0 +1,34 @@
+<nav class="desktop-nav">
+  <a href="/">Home</a>
+  <a href="/feed" class="has-dot">Feed{% if nav_counts.new_feed %}<span class="dot"></span>{% endif %}</a>
+  <a href="/network" class="has-dot">Network{% if nav_counts.new_network %}<span class="dot"></span>{% endif %}</a>
+  <a href="/messages" class="has-dot">Messages{% if nav_counts.new_messages %}<span class="dot"></span>{% endif %}</a>
+  <a href="/saved">Saved</a>
+  <a href="/profile/edit">Edit profile</a>
+  <a href="/u/{{ session_uid }}">My profile</a>
+  {% if admin %}<a href="/admin">Admin</a>{% endif %}
+  <a href="/notifications" class="bell">🔔{% if nav_counts.unread_notifications %}<span class="badge-count">{{ nav_counts.unread_notifications }}</span>{% endif %}</a>
+</nav>
+
+<button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+  <span></span><span></span><span></span>
+</button>
+
+<div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <span class="drawer-title">Menu</span>
+    <button class="drawer-close" id="drawerClose" aria-label="Close menu">×</button>
+  </div>
+  <a href="/">Home</a>
+  <a href="/feed">Feed{% if nav_counts.new_feed %}<span class="dot"></span>{% endif %}</a>
+  <a href="/network">Network{% if nav_counts.new_network %}<span class="dot"></span>{% endif %}</a>
+  <a href="/messages">Messages{% if nav_counts.new_messages %}<span class="dot"></span>{% endif %}</a>
+  <a href="/saved">Saved jobs</a>
+  <a href="/profile/edit">Edit profile</a>
+  <a href="/u/{{ session_uid }}">My profile</a>
+  {% if admin %}<a href="/admin">Admin</a>{% endif %}
+  <a href="/notifications">🔔 Notifications{% if nav_counts.unread_notifications %} ({{ nav_counts.unread_notifications }}){% endif %}</a>
+  <a href="/logout" class="drawer-logout">Log out</a>
+</aside>

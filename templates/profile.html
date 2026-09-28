@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{ profile.full_name }} — SkillMatch</title>
+<style>
+  :root{
+    --teal:#0f766e;--teal-dark:#0b5e57;--teal-light:#ccfbf1;--gold:#d97706;
+    --ink:#1f2937;--sub:#6b7280;--line:#e5e7eb;--bg:#fff;--panel:#f9fafb;
+    --err:#b91c1c;--err-bg:#fef2f2;--err-line:#fecaca;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--teal:#2dd4bf;--teal-dark:#5eead4;--teal-light:#0f2e2b;--gold:#fbbf24;
+          --ink:#ececee;--sub:#9aa0aa;--line:#2c2f35;--bg:#141517;--panel:#1e2024;
+          --err:#fca5a5;--err-bg:#3b1212;--err-line:#7f1d1d;}
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+       color:var(--ink);background:var(--bg);line-height:1.55;}
+
+  header{display:flex;align-items:center;justify-content:space-between;
+         padding:14px 28px;border-bottom:1px solid var(--line);
+         position:sticky;top:0;background:var(--bg);z-index:10;flex-wrap:wrap;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;
+         text-decoration:none;color:var(--ink);}
+  .logo{width:32px;height:32px;border-radius:8px;background:var(--teal);color:#fff;
+        display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+  .logout{border:1px solid var(--line);background:transparent;color:var(--ink);
+          padding:7px 14px;border-radius:8px;font-size:14px;cursor:pointer;text-decoration:none;}
+  .logout:hover{border-color:var(--teal);color:var(--teal);}
+
+  main{max-width:940px;margin:0 auto;padding:36px 24px 60px;}
+
+  .headcard{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:24px;}
+  .accent{height:5px;background:linear-gradient(90deg,var(--teal),var(--gold));}
+  .head-inner{display:flex;align-items:flex-start;justify-content:space-between;
+              gap:20px;padding:26px;flex-wrap:wrap;}
+  .head-left{display:flex;gap:18px;align-items:flex-start;}
+  .avatar{width:64px;height:64px;border-radius:50%;background:var(--teal-light);
+          color:var(--teal-dark);display:flex;align-items:center;justify-content:center;
+          font-weight:700;font-size:20px;flex-shrink:0;}
+  .head-left h1{font-size:24px;margin:0 0 4px;}
+  .headline{color:var(--sub);font-size:14px;margin:0 0 4px;font-style:italic;}
+  .meta{display:flex;gap:18px;font-size:13.5px;color:var(--sub);margin-top:8px;}
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;}
+  .btn{border:1px solid var(--line);background:transparent;color:var(--ink);
+       padding:9px 16px;border-radius:8px;font-size:14px;font-weight:600;
+       cursor:pointer;text-decoration:none;font-family:inherit;display:inline-block;}
+  .btn:hover{border-color:var(--teal);color:var(--teal);}
+  .btn-primary{background:var(--teal);color:#fff;border-color:var(--teal);}
+  .btn-primary:hover{background:var(--teal-dark);border-color:var(--teal-dark);color:#fff;}
+  .btn-outline{background:transparent;border:1px solid var(--line);color:var(--ink);}
+  .btn-outline:hover{border-color:var(--teal);color:var(--teal);}
+  .btn:disabled{opacity:.6;cursor:not-allowed;}
+
+  .note{margin:14px 0 0;padding:9px 12px;border-radius:8px;font-size:13.5px;
+        background:var(--teal-light);color:var(--teal-dark);border:1px solid var(--teal);
+        transition:opacity .35s ease;}
+  .note.error{background:var(--err-bg);color:var(--err);border-color:var(--err-line);}
+  .note.hide{opacity:0;}
+
+  .grid{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;}
+  @media (max-width:760px){.grid{grid-template-columns:1fr;}}
+
+  .card{border:1px solid var(--line);border-radius:14px;padding:22px;
+        margin-bottom:20px;background:var(--bg);}
+  .card h2{font-size:16px;margin:0 0 10px;}
+  .card .placeholder{color:var(--sub);font-size:14px;}
+  .bio{font-size:14px;white-space:pre-wrap;margin:0;}
+
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+  .pill{background:var(--teal-light);color:var(--teal-dark);padding:6px 12px;
+        border-radius:999px;font-size:14px;font-weight:500;}
+  .skills-note{color:var(--sub);font-size:13px;margin-top:14px;}
+  .skills-note a{color:var(--teal);text-decoration:none;font-weight:600;}
+  .skills-note a:hover{text-decoration:underline;}
+
+  .exp-item{border-bottom:1px solid var(--line);padding:12px 0;}
+  .exp-item:last-child{border-bottom:none;padding-bottom:0;}
+  .exp-title{font-weight:700;font-size:14.5px;}
+  .exp-meta{color:var(--sub);font-size:13px;margin:2px 0 6px;}
+  .exp-desc{color:var(--ink);font-size:13.5px;line-height:1.5;}
+
+  footer{border-top:1px solid var(--line);padding:20px 28px;display:flex;
+         justify-content:space-between;flex-wrap:wrap;gap:8px;
+         font-size:13px;color:var(--sub);margin-top:24px;}
+
+  @media (max-width:560px){
+    header{padding:12px 16px;}
+    main{padding:24px 16px 48px;}
+  }
+
+  /* ---------- shared nav ---------- */
+  nav.desktop-nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+  nav.desktop-nav a{color:var(--ink);text-decoration:none;font-size:14px;}
+  nav.desktop-nav a:hover{color:var(--teal);}
+  nav.desktop-nav a.has-dot{position:relative;}
+  nav.desktop-nav a .dot{
+    position:absolute;top:-2px;right:-6px;width:8px;height:8px;border-radius:50%;
+    background:#ef4444;display:inline-block;box-shadow:0 0 0 2px var(--bg);
+  }
+  nav.desktop-nav a.bell{position:relative;font-size:15px;}
+  nav.desktop-nav a.bell .badge-count{
+    position:absolute;top:-6px;right:-8px;min-width:16px;height:16px;padding:0 4px;
+    border-radius:8px;background:#ef4444;color:#fff;font-size:10.5px;font-weight:700;
+    display:inline-flex;align-items:center;justify-content:center;line-height:1;
+    box-shadow:0 0 0 2px var(--bg);
+  }
+
+  /* ---------- mobile: hamburger + drawer ---------- */
+  .hamburger{display:none;background:none;border:1px solid var(--line);border-radius:8px;
+    width:38px;height:38px;padding:8px;cursor:pointer;flex-direction:column;
+    justify-content:space-between;align-items:center;}
+  .hamburger span{display:block;width:100%;height:2px;background:var(--ink);border-radius:1px;}
+  .hamburger:hover{border-color:var(--teal);}
+
+  .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:40;}
+  .drawer{position:fixed;top:0;right:0;height:100vh;width:min(280px,80vw);
+    background:var(--bg);border-left:1px solid var(--line);z-index:50;
+    transform:translateX(100%);transition:transform .25s ease;
+    display:flex;flex-direction:column;padding:16px;gap:4px;overflow-y:auto;}
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .drawer-title{font-weight:700;font-size:15px;}
+  .drawer-close{background:none;border:none;font-size:22px;line-height:1;cursor:pointer;color:var(--ink);}
+  .drawer a{color:var(--ink);text-decoration:none;font-size:15px;padding:10px 8px;
+    border-radius:8px;position:relative;display:flex;align-items:center;justify-content:space-between;}
+  .drawer a:hover{background:var(--panel);color:var(--teal);}
+  .drawer a .dot{width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;}
+  .drawer .drawer-logout{margin-top:auto;border-top:1px solid var(--line);padding-top:14px;}
+
+  @media (max-width:720px){
+    nav.desktop-nav{display:none;}
+    .hamburger{display:flex;}
+  }
+  @media (min-width:721px){
+    .drawer,.drawer-backdrop,.hamburger{display:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="/"><span class="logo">SM</span> SkillMatch</a>
+  {% include "_nav.html" %}
+  <!-- <a class="logout" href="/logout">Log out</a> -->
+</header>
+
+<main>
+  <div class="headcard">
+    <div class="accent"></div>
+    <div class="head-inner">
+      <div class="head-left">
+        <div class="avatar">{{ profile.full_name[:1] | upper }}</div>
+        <div>
+          <h1>{{ profile.full_name }}</h1>
+          {% if profile.headline %}<p class="headline">{{ profile.headline }}</p>{% endif %}
+          <div class="meta">
+            <span>💼 {{ profile.history | length }} role{% if profile.history | length != 1 %}s{% endif %}</span>
+            <span>🧩 {{ profile.skills | length }} skill{% if profile.skills | length != 1 %}s{% endif %}</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="actions" id="actions"
+             data-uid="{{ profile.user_id }}"
+             data-status="{{ status }}">
+          {% if status == 'self' %}
+            <a class="btn btn-primary" href="/profile/edit">✎ Edit profile</a>
+          {% elif status == 'accepted' %}
+            <a class="btn btn-primary" href="/messages/{{ profile.user_id }}">Message</a>
+            <button class="btn" disabled>Connected</button>
+          {% elif status == 'pending_outgoing' %}
+            <button class="btn btn-outline" data-action="cancel">Cancel request</button>
+          {% elif status == 'pending_incoming' %}
+            <button class="btn btn-primary" data-action="accept">Accept request</button>
+            <button class="btn btn-outline" data-action="reject">Reject</button>
+          {% else %}
+            <button class="btn btn-primary" data-action="connect">Connect</button>
+          {% endif %}
+        </div>
+        <p id="note" class="note" style="display:none;"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <h2>About</h2>
+        {% if profile.bio %}
+          <p class="bio">{{ profile.bio }}</p>
+        {% else %}
+          <p class="placeholder">Nothing written here yet.</p>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <h2>Experience</h2>
+        {% if profile.history %}
+          {% for h in profile.history %}
+            <div class="exp-item">
+              <div class="exp-title">{{ h.title }}{% if h.company %} · {{ h.company }}{% endif %}</div>
+              <div class="exp-meta">
+                {{ h.start_year }}{% if h.end_year %} – {{ h.end_year }}{% else %} – Present{% endif %}
+              </div>
+              {% if h.description %}<div class="exp-desc">{{ h.description }}</div>{% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="placeholder">No work history added yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>Skills</h2>
+        {% if profile.skills %}
+          <div class="pills">
+            {% for s in profile.skills %}<span class="pill">{{ s }}</span>{% endfor %}
+          </div>
+        {% else %}
+          <p class="placeholder">No skills listed yet.</p>
+        {% endif %}
+        <p class="skills-note">Skills are managed from the <a href="/">home page</a>.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div>SkillMatch — Explainable Skill-Based Job Recommendation System</div>
+  <div>Built with skill-based matching and skill gap analysis.</div>
+</footer>
+
+<script>
+const actions = document.getElementById('actions');
+const note = document.getElementById('note');
+
+let noteTimer = null;
+function showNote(msg, isError){
+  note.textContent = msg;
+  note.classList.toggle('error', !!isError);
+  note.classList.remove('hide');
+  note.style.display = 'block';
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => {
+    note.classList.add('hide');
+    setTimeout(() => { note.style.display = 'none'; }, 350);
+  }, 4000);
+}
+
+function setButtons(html){
+  actions.innerHTML = html;
+  wireButtons();
+}
+
+function wireButtons(){
+  actions.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const uid = actions.dataset.uid;
+      const action = btn.dataset.action;
+      const url = (action === 'connect')
+        ? '/connect/' + uid
+        : '/connect/' + uid + '/' + action;
+
+      btn.disabled = true;
+      try {
+        const r = await fetch(url, { method: 'POST' });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok){
+          showNote(d.error || 'Something went wrong. Please try again.', true);
+          btn.disabled = false;
+          return;
+        }
+
+        if (action === 'connect'){
+          setButtons('<button class="btn btn-outline" data-action="cancel">Cancel request</button>');
+          showNote('Request sent. You can message this person once they accept. Click again to cancel.');
+        } else if (action === 'cancel'){
+          setButtons('<button class="btn btn-primary" data-action="connect">Connect</button>');
+          showNote('Request cancelled. You can send it again any time.');
+        } else if (action === 'accept'){
+          setButtons(
+            '<a class="btn btn-primary" href="/messages/' + uid + '">Message</a>' +
+            '<button class="btn" disabled>Connected</button>'
+          );
+          showNote('You are now connected. You can message this person.');
+        } else if (action === 'reject'){
+          setButtons('<button class="btn btn-primary" data-action="connect">Connect</button>');
+          showNote('Request declined. You can send a new request if you change your mind.');
+        }
+      } catch {
+        showNote('Network error. Please try again.', true);
+        btn.disabled = false;
+      }
+    });
+  });
+}
+
+wireButtons();
+</script>
+
+<script>
+(function(){
+  const btn = document.getElementById('hamburgerBtn');
+  const drawer = document.getElementById('drawer');
+  const backdrop = document.getElementById('drawerBackdrop');
+  const closeBtn = document.getElementById('drawerClose');
+  if (!btn || !drawer || !backdrop) return;
+  function open(){
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden','false');
+    backdrop.hidden = false;
+    btn.setAttribute('aria-expanded','true');
+  }
+  function close(){
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden','true');
+    backdrop.hidden = true;
+    btn.setAttribute('aria-expanded','false');
+  }
+  btn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+})();
+</script>
+</body></html>
